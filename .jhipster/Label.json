@@ -1,0 +1,30 @@
+{
+  "applications": "*",
+  "changelogDate": "20230327120655",
+  "dto": "no",
+  "embedded": false,
+  "entityTableName": "label",
+  "fields": [
+    {
+      "fieldName": "label",
+      "fieldType": "String",
+      "fieldValidateRules": ["minlength"],
+      "fieldValidateRulesMinlength": "3"
+    }
+  ],
+  "fluentMethods": true,
+  "jpaMetamodelFiltering": false,
+  "name": "Label",
+  "pagination": "no",
+  "readOnly": false,
+  "relationships": [
+    {
+      "otherEntityName": "ticket",
+      "otherEntityRelationshipName": "label",
+      "ownerSide": false,
+      "relationshipName": "ticket",
+      "relationshipType": "many-to-many"
+    }
+  ],
+  "service": "no"
+}
