@@ -51,6 +51,11 @@ public class CacheConfiguration {
             createCache(cm, io.github.lkwid.domain.User.class.getName());
             createCache(cm, io.github.lkwid.domain.Authority.class.getName());
             createCache(cm, io.github.lkwid.domain.User.class.getName() + ".authorities");
+            createCache(cm, io.github.lkwid.domain.Project.class.getName());
+            createCache(cm, io.github.lkwid.domain.Label.class.getName());
+            createCache(cm, io.github.lkwid.domain.Label.class.getName() + ".tickets");
+            createCache(cm, io.github.lkwid.domain.Ticket.class.getName());
+            createCache(cm, io.github.lkwid.domain.Ticket.class.getName() + ".labels");
             // jhipster-needle-ehcache-add-entry
         };
     }
