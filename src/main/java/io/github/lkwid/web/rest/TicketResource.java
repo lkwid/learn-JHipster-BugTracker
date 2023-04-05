@@ -2,14 +2,17 @@ package io.github.lkwid.web.rest;
 
 import io.github.lkwid.domain.Ticket;
 import io.github.lkwid.repository.TicketRepository;
+import io.github.lkwid.security.AuthoritiesConstants;
 import io.github.lkwid.web.rest.errors.BadRequestAlertException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -69,7 +72,7 @@ public class TicketResource {
     /**
      * {@code PUT  /tickets/:id} : Updates an existing ticket.
      *
-     * @param id the id of the ticket to save.
+     * @param id     the id of the ticket to save.
      * @param ticket the ticket to update.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated ticket,
      * or with status {@code 400 (Bad Request)} if the ticket is not valid,
@@ -103,7 +106,7 @@ public class TicketResource {
     /**
      * {@code PATCH  /tickets/:id} : Partial updates given fields of an existing ticket, field will ignore if it is null
      *
-     * @param id the id of the ticket to save.
+     * @param id     the id of the ticket to save.
      * @param ticket the ticket to update.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated ticket,
      * or with status {@code 400 (Bad Request)} if the ticket is not valid,
@@ -111,7 +114,7 @@ public class TicketResource {
      * or with status {@code 500 (Internal Server Error)} if the ticket couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
-    @PatchMapping(value = "/tickets/{id}", consumes = { "application/json", "application/merge-patch+json" })
+    @PatchMapping(value = "/tickets/{id}", consumes = {"application/json", "application/merge-patch+json"})
     public ResponseEntity<Ticket> partialUpdateTicket(
         @PathVariable(value = "id", required = false) final Long id,
         @NotNull @RequestBody Ticket ticket
@@ -157,7 +160,7 @@ public class TicketResource {
     /**
      * {@code GET  /tickets} : get all the tickets.
      *
-     * @param pageable the pagination information.
+     * @param pageable  the pagination information.
      * @param eagerload flag to eager load entities from relationships (This is applicable for many-to-many).
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of tickets in body.
      */
@@ -205,4 +208,21 @@ public class TicketResource {
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
             .build();
     }
+
+    @GetMapping("/tickets/self")
+    public ResponseEntity<List<Ticket>> getAllSelfTickets(
+        Pageable pageable,
+        @RequestParam(required = true, defaultValue = "false") boolean eagerload
+    ) {
+        log.debug("Rest request to get a page of user's Tickets");
+        Page<Ticket> page;
+        if (eagerload) {
+            page = ticketRepository.findAllWithEagerRelationships(pageable);
+        } else {
+            page = new PageImpl<>(ticketRepository.findByAssignedToIsCurrentUser());
+        }
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        return ResponseEntity.ok().headers(headers).body(page.getContent());
+    }
+
 }
