@@ -11,14 +11,15 @@ import org.springframework.stereotype.Repository;
 
 /**
  * Spring Data JPA repository for the Ticket entity.
- *
  * When extending this class, extend TicketRepositoryWithBagRelationships too.
- * For more information refer to https://github.com/jhipster/generator-jhipster/issues/17990.
+ * For more information refer to <a href="https://github.com/jhipster/generator-jhipster/issues/17990">...</a>.
  */
 @Repository
 public interface TicketRepository extends TicketRepositoryWithBagRelationships, JpaRepository<Ticket, Long> {
     @Query("select ticket from Ticket ticket where ticket.assignedTo.login = ?#{principal.username}")
     List<Ticket> findByAssignedToIsCurrentUser();
+
+    Page<Ticket> findAllByOrderByDueDateAsc(Pageable pageable);
 
     default Optional<Ticket> findOneWithEagerRelationships(Long id) {
         return this.fetchBagRelationships(this.findOneWithToOneRelationships(id));
